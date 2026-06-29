@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOS Game – Fun for Kids & Students!</title>
+  <meta name="description" content="Play the classic SOS strategy board game! Spell S-O-S on the grid to score points. Fun for kids and students!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#game">Skip to game</a>
+
+  <!-- Confetti canvas -->
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+  <!-- Score toast -->
+  <div id="scoreToast" role="status" aria-live="assertive"></div>
+
+  <main class="page">
+
+    <!-- ── Hero / Header ── -->
+    <section class="hero" aria-labelledby="title">
+      <div class="hero-top">
+        <div class="brand" aria-label="SOS Game">
+          <svg class="logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
+               role="img" aria-label="SOS Game Logo">
+            <rect x="4" y="4" width="56" height="56" rx="16" stroke="currentColor" stroke-width="4"/>
+            <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle"
+                  font-family="'Fredoka One',cursive" font-size="28" fill="currentColor">SOS</text>
+          </svg>
+          SOS Game
+        </div>
+
+        <button class="theme-toggle" type="button" id="themeToggle" aria-label="Switch theme"></button>
+      </div>
+
+      <div>
+        <h1 id="title">🎮 Spell S-O-S &amp; Win the Board!</h1>
+        <p class="hero-copy">
+          🌟 Take turns placing <strong>S</strong> or <strong>O</strong> letters on the grid.
+          Score a point every time you complete the sequence <strong>S → O → S</strong> in a line!
+          Score a point and <strong>you get an EXTRA turn! 🎉</strong>
+          The player with the most SOS sequences wins!
+        </p>
+      </div>
+    </section>
+
+    <!-- ── Main game layout ── -->
+    <section class="layout" id="game">
+
+      <!-- Left panel: controls & scores -->
+      <aside class="panel" aria-labelledby="setup-title">
+        <h2 id="setup-title">🎯 Game Setup</h2>
+
+        <div class="controls-grid" style="margin-top: 1rem;">
+          <!-- Board size -->
+          <div class="field">
+            <label for="boardSize">📐 Board Size</label>
+            <select id="boardSize" aria-describedby="boardHelp">
+              <option value="3">3 × 3  (Easy!)</option>
+              <option value="4">4 × 4  (Fun!)</option>
+              <option value="5" selected>5 × 5  (Classic!)</option>
+              <option value="6">6 × 6  (Challenge!)</option>
+              <option value="7">7 × 7  (Expert!)</option>
+              <option value="8">8 × 8  (Master!)</option>
+            </select>
+            <p id="boardHelp" class="status-text" style="font-size:0.8rem;">
+              Spell S-O-S in any direction to score! Score = extra turn! 🌟
+            </p>
+          </div>
+
+          <!-- Token picker -->
+          <div class="field">
+            <span class="mini-heading">🔤 Pick Your Letter</span>
+            <div class="token-picker" role="radiogroup" aria-label="Choose your letter">
+              <button class="token-option active" type="button" id="tokenS"
+                      data-token="S" aria-pressed="true">S</button>
+              <button class="token-option" type="button" id="tokenO"
+                      data-token="O" aria-pressed="false">O</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="actions">
+          <button class="btn btn-primary" id="startGame" type="button">🚀 New Game</button>
+          <button class="btn btn-secondary" id="computerFirst" type="button">🤖 Robot First</button>
+          <button class="btn btn-ghost" id="resetSame" type="button">🔄 Reset</button>
+        </div>
+
+        <!-- Score cards -->
+        <div class="score-grid">
+          <article class="score-card player" aria-label="Your score">
+            <span class="player-emoji">😊</span>
+            <p class="mini-heading">You</p>
+            <span class="score-value" id="playerScore">0</span>
+          </article>
+
+          <article class="score-card ai" aria-label="Computer score">
+            <span class="ai-emoji">🤖</span>
+            <p class="mini-heading">Robot</p>
+            <span class="score-value" id="aiScore">0</span>
+          </article>
+
+          <article class="status-card" aria-live="polite">
+            <div class="turn-badge" id="turnLabel">Your Turn!</div>
+            <p class="status-text" id="statusText">Pick a letter and tap an empty cell!</p>
+            <div class="extra-turn-badge" id="extraTurnBadge">⭐ BONUS TURN! ⭐</div>
+          </article>
+        </div>
+      </aside>
+
+      <!-- Right panel: board + history -->
+      <section class="game-section">
+        <div class="panel board-shell">
+          <div>
+            <!-- Result banner -->
+            <div class="result-banner" id="resultBanner" aria-live="polite"></div>
+
+            <!-- Legend -->
+            <div class="legend" aria-label="Colour legend" style="margin-bottom:0.875rem;">
+              <span class="legend-chip"><span class="dot player-s-dot"></span>Your S</span>
+              <span class="legend-chip"><span class="dot player-o-dot"></span>Your O</span>
+              <span class="legend-chip"><span class="dot ai-s-dot"></span>Robot S</span>
+              <span class="legend-chip"><span class="dot ai-o-dot"></span>Robot O</span>
+            </div>
+
+            <!-- The game board -->
+            <div class="board" id="board" role="grid" aria-label="SOS game board"></div>
+          </div>
+
+          <!-- Move history -->
+          <aside aria-labelledby="history-title">
+            <h2 id="history-title">📜 Move History</h2>
+            <div class="history" id="history" aria-live="polite"></div>
+          </aside>
+        </div>
+      </section>
+
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
